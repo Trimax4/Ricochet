@@ -19,12 +19,18 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+protected:
+	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
+	//handles moving forward/backward
+	UFUNCTION()
+	void MoveZ(float Val);
+	//handles strafing
+	UFUNCTION()
+	void MoveX(float Val);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	
 	
