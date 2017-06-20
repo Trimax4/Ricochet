@@ -7,9 +7,9 @@
 APracticeMode::APracticeMode(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	
+
 	// set default pawn class to our Blueprinted character
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnObject(TEXT("Pawn'/Game/MainPlayer_BP.MainPlayer_BP'"));
+	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnObject(TEXT("Pawn'/Game/MainPlayer_BP.MainPlayer_BP_C'"));
 	if (PlayerPawnObject.Class != NULL)
 	{
 		DefaultPawnClass = PlayerPawnObject.Class;
