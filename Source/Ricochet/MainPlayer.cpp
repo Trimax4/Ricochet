@@ -13,6 +13,9 @@ AMainPlayer::AMainPlayer()
 AMainPlayer::AMainPlayer(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	//air control is float allows direction change while jumping
+	GetCharacterMovement()->AirControl = 1;
+
 	// Create a CameraComponent 
 	FirstPersonCameraComponent = ObjectInitializer.CreateDefaultSubobject<UCameraComponent>(this, TEXT("FirstPersonCamera"));
 	FirstPersonCameraComponent->AttachTo(GetCapsuleComponent());
