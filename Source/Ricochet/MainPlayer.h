@@ -16,6 +16,16 @@ public:
 	// Sets default values for this character's properties
 	AMainPlayer();
 
+	// Constructor for AFPSCharacter
+	AMainPlayer(const FObjectInitializer& ObjectInitializer);
+
+	/** First person camera */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class UCameraComponent* FirstPersonCameraComponent;
+
+	/** Pawn mesh: 1st person view (arms; seen only by self) */
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	class USkeletalMeshComponent* FirstPersonMesh;
 
 protected:
 	// Called when the game starts or when spawned
