@@ -10,23 +10,33 @@ UCLASS()
 class RICOCHET_API AMainPlayer : public ACharacter
 {
 	GENERATED_BODY()
+	
 
 public:
 	// Sets default values for this character's properties
 	AMainPlayer();
 
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
+
 	//handles moving forward/backward
 	UFUNCTION()
 	void MoveZ(float Val);
 	//handles strafing
 	UFUNCTION()
 	void MoveX(float Val);
+
+	//sets jump flag when key is pressed
+	UFUNCTION()
+	void OnStartJump();
+	//clears jump flag when key is released
+	UFUNCTION()
+	void OnStopJump();
+
 
 public:	
 	// Called every frame

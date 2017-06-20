@@ -8,25 +8,24 @@ AMainPlayer::AMainPlayer()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
 // Called when the game starts or when spawned
 void AMainPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	if (GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("We are using FPSCharacter!"));
 	}
+	
 }
 
 // Called every frame
 void AMainPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
@@ -36,6 +35,12 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	// set up gameplay key bindings
 	InputComponent->BindAxis("MoveZ", this, &AMainPlayer::MoveZ);
 	InputComponent->BindAxis("MoveX", this, &AMainPlayer::MoveX);
+
+	InputComponent->BindAxis("LookX", this, &AMainPlayer::AddControllerYawInput);
+	InputComponent->BindAxis("LookY", this, &AMainPlayer::AddControllerPitchInput);
+
+	InputComponent->BindAction("Jump", IE_Pressed, this, &AMainPlayer::OnStartJump);
+	InputComponent->BindAction("Jump", IE_Released, this, &AMainPlayer::OnStopJump);
 }
 
 void AMainPlayer::MoveZ(float Value)
@@ -65,4 +70,14 @@ void AMainPlayer::MoveX(float Value)
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
+}
+
+void AMainPlayer::OnStartJump()
+{
+	bPressedJump = true;
+}
+
+void AMainPlayer::OnStopJump()
+{
+	bPressedJump = false;
 }
