@@ -19,6 +19,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// Function that is called when the projectile hits something.
+	
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -33,4 +36,7 @@ public:
 
 	// Function that initializes the projectile's velocity in the shoot direction.
 	void FireInDirection(const FVector& ShootDirection);
+
+	// Function that is called when the projectile hits something.
+	void OnHit(UPrimitiveComponent * PrimitiveComponent1, AActor * Actor, UPrimitiveComponent * PrimitiveComponent2, FVector Vector, const FHitResult & HitResult);
 };

@@ -15,6 +15,8 @@ AFireball::AFireball()
 	CollisionComponent->InitSphereRadius(15.0f);
 	// Set the root component to be the collision component.
 	RootComponent = CollisionComponent;
+	CollisionComponent->BodyInstance.SetCollisionProfileName(TEXT("Projectile"));
+	CollisionComponent->OnComponentHit.AddDynamic(this, &AFireball::OnHit);
 
 	// Use this component to drive this projectile's movement.
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
@@ -24,6 +26,9 @@ AFireball::AFireball()
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	ProjectileMovementComponent->bShouldBounce = true;
 	ProjectileMovementComponent->Bounciness = 0.3f;
+
+	//kill object in 3 second
+	InitialLifeSpan = 3.0f;
 }
 
 // Called when the game starts or when spawned
@@ -44,5 +49,14 @@ void AFireball::Tick(float DeltaTime)
 void AFireball::FireInDirection(const FVector& ShootDirection)
 {
 	ProjectileMovementComponent->Velocity = ShootDirection * ProjectileMovementComponent->InitialSpeed;
+}
+
+// Function that is called when the projectile hits something.
+void AFireball::OnHit(UPrimitiveComponent * PrimitiveComponent1, AActor * Actor, UPrimitiveComponent * PrimitiveComponent2, FVector Vector, const FHitResult & HitResult)
+{
+	if (Actor != this && PrimitiveComponent2->IsSimulatingPhysics())
+	{
+		PrimitiveComponent2->AddImpulseAtLocation(ProjectileMovementComponent->Velocity * 100.0f, HitResult.ImpactPoint);
+	}
 }
 
