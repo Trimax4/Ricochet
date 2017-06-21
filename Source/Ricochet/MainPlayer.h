@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "MainPlayer.generated.h"
 
+
 UCLASS()
 class RICOCHET_API AMainPlayer : public ACharacter
 {
@@ -27,6 +28,14 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 	class USkeletalMeshComponent* FirstPersonMesh;
 
+	// Gun muzzle's offset from the camera location.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	FVector MuzzleOffset;
+
+	// Projectile class to spawn.
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	TSubclassOf<class AFireball> ProjectileClass;
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -46,6 +55,10 @@ protected:
 	//clears jump flag when key is released
 	UFUNCTION()
 	void OnStopJump();
+	
+	// Function that handles firing projectiles.
+	UFUNCTION()
+	void LeftClick();
 
 
 public:	
