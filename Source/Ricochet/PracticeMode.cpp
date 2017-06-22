@@ -3,6 +3,7 @@
 #include "PracticeMode.h"
 //#include "MainPlayer.h"
 #include "Engine.h"
+#include "HUD_MainPlayer.h"
 
 APracticeMode::APracticeMode(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -14,6 +15,8 @@ APracticeMode::APracticeMode(const FObjectInitializer& ObjectInitializer)
 	{
 		DefaultPawnClass = PlayerPawnObject.Class;
 	}
+
+	HUDClass = AHUD_MainPlayer::StaticClass();
 }
 
 void APracticeMode::StartPlay()
