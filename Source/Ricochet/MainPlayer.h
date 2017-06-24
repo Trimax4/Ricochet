@@ -51,6 +51,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	float DodgeWeight;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	float AirDodgeWeightReduction;
+
 	
 protected:	
 	// Called when the game starts or when spawned
@@ -76,14 +79,8 @@ protected:
 	//clears jump flag when key is released
 	UFUNCTION()
 	void OnStopJump();
-	
-	/*
-	UFUNCTION()
-	bool CanJump() const;
-	UFUNCTION()
-	virtual void OnLanded(const FHitResult& Hit);
-	*/
-	// Function that handles firing projectiles.
+
+
 	UFUNCTION()
 	void LeftClick();
 

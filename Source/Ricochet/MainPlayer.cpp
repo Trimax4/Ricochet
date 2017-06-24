@@ -98,16 +98,31 @@ void AMainPlayer::MoveZ(float Value)
 		AddMovementInput(Direction, Value);
 		if (DashFlag)
 		{
-			if (Value > 0)
+			//reduce dodge multiplier in air adds too much velocity due to lack of air resistance control
+			const FVector ZDirection = this->GetRootComponent()->GetForwardVector();
+			float DodgeTotal = DodgeWeight / AirDodgeWeightReduction;
+
+			if (bPressedJump)
 			{
-				const FVector ForwardDir = this->GetRootComponent()->GetForwardVector();
-				this->GetActorLocation() += ForwardDir * DodgeWeight;
+				if (Value > 0)
+				{
+					GetCharacterMovement()->Velocity += ZDirection * DodgeTotal;
+				}
+				else
+				{
+					GetCharacterMovement()->Velocity += ZDirection * -DodgeTotal;
+				}
 			}
 			else
 			{
-				const FVector BackwardsDir = this->GetRootComponent()->GetForwardVector();
-				this->GetActorLocation() += BackwardsDir * DodgeWeight;
-				//GetCharacterMovement()->Velocity += BackwardsDir * -DodgeWeight;
+				if (Value > 0)
+				{
+					GetCharacterMovement()->Velocity += ZDirection * DodgeWeight;
+				}
+				else
+				{
+					GetCharacterMovement()->Velocity += ZDirection * -DodgeWeight;
+				}
 			}
 			DashFlag = false;
 		}
@@ -129,29 +144,49 @@ void AMainPlayer::MoveX(float Value)
 
 		if (DashFlag)
 		{
-			if (Value > 0)
+			//reduce dodge multiplier in air adds too much velocity due to lack of air resistance control
+			const FVector XDirection = this->GetRootComponent()->GetRightVector();
+			float DodgeTotal = DodgeWeight / AirDodgeWeightReduction;
+
+			if (GEngine)
 			{
-				const FVector RightDir = this->GetRootComponent()->GetRightVector();
-				GetCharacterMovement()->Velocity += RightDir * DodgeWeight;
+				GEngine->AddOnScreenDebugMessage(10, 5.f, FColor::Yellow, FString::Printf(TEXT("Some variable values: x: %f"), DodgeTotal));
+			}
+
+			if (bPressedJump)
+			{
+				if (Value > 0)
+				{
+					GetCharacterMovement()->Velocity += XDirection * DodgeTotal;
+				}
+				else
+				{
+					GetCharacterMovement()->Velocity += XDirection * -DodgeTotal;
+				}
 			}
 			else
 			{
-				const FVector LeftDir = this->GetRootComponent()->GetRightVector();
-				GetCharacterMovement()->Velocity += LeftDir * -DodgeWeight;
-			}	
+				if (Value > 0)
+				{
+					GetCharacterMovement()->Velocity += XDirection * DodgeWeight;
+				}
+				else
+				{
+					GetCharacterMovement()->Velocity += XDirection * -DodgeWeight;
+				}
+			}
 			DashFlag = false;	
-		}
-		
+		}		
 	}
 }
 
 void AMainPlayer::Dash()
 {
 	DashFlag = true;
-	FVector XVector = this->GetRootComponent()->GetRightVector();
+
 	if (GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(10, 5.f, FColor::Yellow, FString::Printf(TEXT("Some variable values: x: %f, y: %f, z: %f"), XVector.X, XVector.Y, XVector.Z));
+		//GEngine->AddOnScreenDebugMessage(10, 5.f, FColor::Yellow, FString::Printf(TEXT("Some variable values: x: %f, y: %f, z: %f"), XVector.X, XVector.Y, XVector.Z));
 	}
 }
 
@@ -162,13 +197,17 @@ void AMainPlayer::DashStop()
 
 void AMainPlayer::OnStartJump()
 {
-	bPressedJump = true;			
+	if (this->GetMovementComponent()->IsFalling() && (JumpCurrentCount <= JumpMaxCount))
+	{
+		Jump();
+		++JumpCurrentCount;
+	}
+	bPressedJump = true;
 }
 void AMainPlayer::OnStopJump()
 {
 	bPressedJump = false;
 }
-
 
 
 void AMainPlayer::LeftClick()
