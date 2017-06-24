@@ -35,8 +35,24 @@ public:
 	// Projectile class to spawn.
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 	TSubclassOf<class AFireball> ProjectileClass;
+
+	//previous time between spacebar press
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Gameplay)
+	float PreviousTime = 0;
+
+	//previous time between spacebar press
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Gameplay)
+	bool DashFlag = false;
+
+	//time inbetween presses for double tap activation
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	float TimeThreshold;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	float DodgeWeight;
+
 	
-protected:
+protected:	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -48,6 +64,11 @@ protected:
 	//handles strafing
 	UFUNCTION()
 	void MoveX(float Val);
+	//handles dash
+	UFUNCTION()
+	void Dash();
+	UFUNCTION()
+	void DashStop();
 
 	//sets jump flag when key is pressed
 	UFUNCTION()
@@ -56,15 +77,27 @@ protected:
 	UFUNCTION()
 	void OnStopJump();
 	
+	/*
+	UFUNCTION()
+	bool CanJump() const;
+	UFUNCTION()
+	virtual void OnLanded(const FHitResult& Hit);
+	*/
 	// Function that handles firing projectiles.
 	UFUNCTION()
 	void LeftClick();
+
+	// Add speed to allow sprint
+	UFUNCTION()
+	void SprintStart();
+	UFUNCTION()
+	void SprintStop();
 
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	
+
 	
 };

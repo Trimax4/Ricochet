@@ -28,7 +28,7 @@ AFireball::AFireball()
 	ProjectileMovementComponent->Bounciness = 0.3f;
 
 	//kill object in 3 second
-	InitialLifeSpan = 3.0f;
+	InitialLifeSpan = .05f;
 }
 
 // Called when the game starts or when spawned

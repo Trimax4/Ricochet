@@ -3,7 +3,9 @@
 #include "MainPlayer.h"
 #include "Fireball.h"
 #include "Engine.h"
+#include <EngineGlobals.h>
 
+float RunModifier = 1400;
 
 // Sets default values
 AMainPlayer::AMainPlayer()
@@ -34,8 +36,12 @@ AMainPlayer::AMainPlayer(const FObjectInitializer& ObjectInitializer)
 	FirstPersonMesh->bCastDynamicShadow = false;
 	FirstPersonMesh->CastShadow = false;
 	GetMesh()->SetOwnerNoSee(true);
+
 }
 
+/////////////////////////////
+////////PROTECTED BELOW
+/////////////////////////////
 // Called when the game starts or when spawned
 void AMainPlayer::BeginPlay()
 {
@@ -61,12 +67,17 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	// set up gameplay key bindings
 	InputComponent->BindAxis("MoveZ", this, &AMainPlayer::MoveZ);
 	InputComponent->BindAxis("MoveX", this, &AMainPlayer::MoveX);
+	
 
 	InputComponent->BindAxis("LookX", this, &AMainPlayer::AddControllerYawInput);
 	InputComponent->BindAxis("LookY", this, &AMainPlayer::AddControllerPitchInput);
 
 	InputComponent->BindAction("Jump", IE_Pressed, this, &AMainPlayer::OnStartJump);
 	InputComponent->BindAction("Jump", IE_Released, this, &AMainPlayer::OnStopJump);
+	//InputComponent->BindAction("LeftShift", IE_Pressed, this, &AMainPlayer::SprintStart);
+	//InputComponent->BindAction("LeftShift", IE_Released, this, &AMainPlayer::SprintStop);
+	InputComponent->BindAction("LeftShift", IE_Pressed, this, &AMainPlayer::Dash);
+	InputComponent->BindAction("LeftShift", IE_Released, this, &AMainPlayer::DashStop);
 
 	PlayerInputComponent->BindAction("LeftClick", IE_Pressed, this, &AMainPlayer::LeftClick);
 }
@@ -85,30 +96,80 @@ void AMainPlayer::MoveZ(float Value)
 		// add movement in that direction
 		const FVector Direction = FRotationMatrix(Rotation).GetScaledAxis(EAxis::X);
 		AddMovementInput(Direction, Value);
+		if (DashFlag)
+		{
+			if (Value > 0)
+			{
+				const FVector ForwardDir = this->GetRootComponent()->GetForwardVector();
+				this->GetActorLocation() += ForwardDir * DodgeWeight;
+			}
+			else
+			{
+				const FVector BackwardsDir = this->GetRootComponent()->GetForwardVector();
+				this->GetActorLocation() += BackwardsDir * DodgeWeight;
+				//GetCharacterMovement()->Velocity += BackwardsDir * -DodgeWeight;
+			}
+			DashFlag = false;
+		}
+		
+		
 	}
 }
 
+//controls X axis and implements the dash mechanic
 void AMainPlayer::MoveX(float Value)
 {
 	if ((Controller != NULL) && (Value != 0.0f))
-	{
+	{	
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FVector Direction = FRotationMatrix(Rotation).GetScaledAxis(EAxis::Y);
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
+
+		if (DashFlag)
+		{
+			if (Value > 0)
+			{
+				const FVector RightDir = this->GetRootComponent()->GetRightVector();
+				GetCharacterMovement()->Velocity += RightDir * DodgeWeight;
+			}
+			else
+			{
+				const FVector LeftDir = this->GetRootComponent()->GetRightVector();
+				GetCharacterMovement()->Velocity += LeftDir * -DodgeWeight;
+			}	
+			DashFlag = false;	
+		}
+		
 	}
+}
+
+void AMainPlayer::Dash()
+{
+	DashFlag = true;
+	FVector XVector = this->GetRootComponent()->GetRightVector();
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(10, 5.f, FColor::Yellow, FString::Printf(TEXT("Some variable values: x: %f, y: %f, z: %f"), XVector.X, XVector.Y, XVector.Z));
+	}
+}
+
+void AMainPlayer::DashStop()
+{
+	DashFlag = false;
 }
 
 void AMainPlayer::OnStartJump()
 {
-	bPressedJump = true;
+	bPressedJump = true;			
 }
-
 void AMainPlayer::OnStopJump()
 {
 	bPressedJump = false;
 }
+
+
 
 void AMainPlayer::LeftClick()
 {
@@ -145,4 +206,14 @@ void AMainPlayer::LeftClick()
 				
 			}
 		}
+}
+
+void AMainPlayer::SprintStart()
+{
+	GetCharacterMovement()->MaxWalkSpeed += RunModifier;
+}
+
+void AMainPlayer::SprintStop()
+{
+	GetCharacterMovement()->MaxWalkSpeed -= RunModifier;
 }
