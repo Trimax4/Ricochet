@@ -54,6 +54,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	float AirDodgeWeightReduction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	float FallResistance;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	bool IsWallRideEnabled = false;
+
+
 	
 protected:	
 	// Called when the game starts or when spawned
@@ -73,6 +80,11 @@ protected:
 	UFUNCTION()
 	void DashStop();
 
+	UFUNCTION()
+	void SlideStart();
+	UFUNCTION()
+	void SlideEnd();
+
 	//sets jump flag when key is pressed
 	UFUNCTION()
 	void OnStartJump();
@@ -90,11 +102,16 @@ protected:
 	UFUNCTION()
 	void SprintStop();
 
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
+	UFUNCTION()
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	
 public:	
 	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-
-	
+	virtual void Tick(float DeltaTime) override;	
 };

@@ -36,7 +36,9 @@ AMainPlayer::AMainPlayer(const FObjectInitializer& ObjectInitializer)
 	FirstPersonMesh->bCastDynamicShadow = false;
 	FirstPersonMesh->CastShadow = false;
 	GetMesh()->SetOwnerNoSee(true);
-
+	
+	this->GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AMainPlayer::OnOverlapBegin);
+	this->GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &AMainPlayer::OnOverlapEnd);
 }
 
 /////////////////////////////
@@ -58,6 +60,12 @@ void AMainPlayer::BeginPlay()
 void AMainPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (IsWallRideEnabled)
+	{
+		this->GetMovementComponent()->Velocity.Z += FallResistance;
+	}
+
 }
 
 // Called to bind functionality to input
@@ -78,6 +86,9 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	//InputComponent->BindAction("LeftShift", IE_Released, this, &AMainPlayer::SprintStop);
 	InputComponent->BindAction("LeftShift", IE_Pressed, this, &AMainPlayer::Dash);
 	InputComponent->BindAction("LeftShift", IE_Released, this, &AMainPlayer::DashStop);
+	InputComponent->BindAction("LeftControl", IE_Pressed, this, &AMainPlayer::SlideStart);
+	InputComponent->BindAction("LeftControl", IE_Released, this, &AMainPlayer::SlideEnd);
+
 
 	PlayerInputComponent->BindAction("LeftClick", IE_Pressed, this, &AMainPlayer::LeftClick);
 }
@@ -255,4 +266,52 @@ void AMainPlayer::SprintStart()
 void AMainPlayer::SprintStop()
 {
 	GetCharacterMovement()->MaxWalkSpeed -= RunModifier;
+}
+
+void AMainPlayer::SlideStart()
+{
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-10, 5.f, FColor::Blue, FString::Printf(TEXT("Is on ground: %d"), this->GetCharacterMovement()->IsMovingOnGround()));
+	}
+	if (this->GetCharacterMovement()->IsMovingOnGround())
+	{
+		this->GetCharacterMovement()->BrakingFrictionFactor = .75;
+	}
+}
+
+void AMainPlayer::SlideEnd()
+{
+	this->GetCharacterMovement()->BrakingFrictionFactor = 2;
+}
+
+void AMainPlayer::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	GLog->Log(*OtherActor->GetName());
+}
+
+
+/*
+	if (OtherActor->ActorHasTag("WallRide"))
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-20, 5.f, FColor::Blue, TEXT("firing velocity add"));
+		}
+		this->GetMovementComponent()->Velocity.Z += FallResistance;
+	}
+}
+*/
+
+void AMainPlayer::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("enter wall ride!")));
+	//this->GetMovementComponent()->Velocity.Z += FallResistance;
+	IsWallRideEnabled = true;
+}
+
+void AMainPlayer::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("leaving wall ride!")));
+	IsWallRideEnabled = false;
 }
